@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from pozo.ood.exceptions import SelectorTypeError
-import pozo.ood.ordereddictionary as od
+from ood.exceptions import SelectorTypeError
+import ood.ObservingOrderedDictionary as ood
 
 class Selector(ABC):
 
     @abstractmethod # this won't always throw an error!
-    def _process(self, ood):
+    def _process(self, parent):
         raise NotImplementedError("All classes that inherit Selector must implement process. If you're seeing this error, some selector you are using wasn't finished!")
 
 
@@ -20,17 +20,17 @@ class Name_I(Selector): # untested
     def enforce_self_type(self):
         if not self.check_self_type(): raise SelectorTypeError("Supplied Name_I must be tuple of (str, int)")
 
-    def _process(self, ood):
+    def _process(self, parent):
         self.enforce_self_type()
-        return ood._get_items_by_name(self.name, index = self.index)
+        return parent._get_items_by_name(self.name, index = self.index)
 
 class Has_Children(Selector): # untested
     def __init__(self, *sub_selectors):
         self.sub_selectors = sub_selectors
-    def _process(self, ood):
+    def _process(self, parent):
         ret_items = []
-        for item in ood.get_items():
-            if isinstance(item, od.ObservingOrderedDictionary):
+        for item in parent.get_items():
+            if isinstance(item, ood):
                 for selector in self.sub_selectors:
                     if item.has_item(selector):
                         ret_items.append(item)

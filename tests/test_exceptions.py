@@ -1,4 +1,4 @@
-import pozo.ood.exceptions as e
+import ood.exceptions as e
 import pytest, contextlib
 
 all_exceptions = [e.StrictIndexException,

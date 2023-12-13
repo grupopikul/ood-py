@@ -1,7 +1,7 @@
 import pytest, random
-import pozo.ood.ordereddictionary as od
-import pozo.ood.extra_selectors as s
-import pozo.ood.exceptions as e
+import ood
+import ood.selectors as s
+import ood.exceptions as e
 
 SAMPLE = 1
 
@@ -24,25 +24,25 @@ def helper_make_names(n = 1):
         ret[name] = True
     return list(ret.keys())
 
-class OODChild(od.ObservingOrderedDictionary, od.ChildObserved):
+class OODChild(ood.ObservingOrderedDictionary, ood.ChildObserved):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
 
-def assert_od_sane(ood = od.ObservingOrderedDictionary(), num = None):
+def assert_od_sane(item = ood.ObservingOrderedDictionary(), num = None):
     i = 0
-    for item in ood:
+    for item in item:
         i += 1
-    assert len(ood._items_by_id) == i
-    assert len(ood._items_by_id) == len(ood._items_ordered)
-    assert len(ood._items_by_id) == ood._count_dictionary()
-    assert len(ood._items_by_id) ==  len(ood)
+    assert len(item._items_by_id) == i
+    assert len(item._items_by_id) == len(item._items_ordered)
+    assert len(item._items_by_id) == item._count_dictionary()
+    assert len(item._items_by_id) ==  len(item)
     if num is not None:
-        assert len(ood._items_by_id) == num
-    for i, item in enumerate(ood):
-        assert item == ood._items_ordered[i]
+        assert len(item._items_by_id) == num
+    for i, item in enumerate(item):
+        assert item == item._items_ordered[i]
 
     all_items = {}
-    for name in ood._items_by_name:
+    for name in item._items_by_name:
         for item in name:
             if id(item) in all_items:
                 pytest.fail("Dictionary is inconsistent- same item has > 1 name")
@@ -73,17 +73,17 @@ def assert_child_has_parents(child, num, parents = None):
             assert id(parent) in child._parents_by_id
 
 def test_init_ood():
-    ood = od.ObservingOrderedDictionary()
-    assert_od_sane(ood, 0)
-    assert ood._strict_index is None
-    assert ood._name_conflict is None
-    assert ood._redundant_add is None
+    od = ood.ObservingOrderedDictionary()
+    assert_od_sane(od, 0)
+    assert od._strict_index is None
+    assert od._name_conflict is None
+    assert od._redundant_add is None
 
 def test_init_child():
-    child = od.ChildObserved()
+    child = ood.ChildObserved()
     assert_child_name(child, "unnamed")
 
-    child = od.ChildObserved(name="test")
+    child = ood.ChildObserved(name="test")
     assert_child_name(child, "test")
 
     child.set_name("test2")

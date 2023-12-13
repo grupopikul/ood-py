@@ -1,4 +1,4 @@
-import ood.extra_selectors as s
+import ood.selectors as s
 import ood.exceptions as e
 
 class ObservingOrderedDictionary():
