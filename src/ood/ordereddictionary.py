@@ -1,5 +1,5 @@
-import pozo.ood.extra_selectors as s
-import pozo.ood.exceptions as e
+import ood.extra_selectors as s
+import ood.exceptions as e
 
 class ObservingOrderedDictionary():
     _type="item"
