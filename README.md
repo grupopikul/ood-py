@@ -1,3 +1,5 @@
+[para español](docs/es/LÉAME.md)
+
 # Observing Ordered Dictionary
 
 The observing ordered dictionary is a datastructure for accessing child-elements by name or position. It is meant to be inherited (or composed: I inherit it in my applications, but it's almost composed given I override and rename every public method).
