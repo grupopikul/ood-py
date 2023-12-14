@@ -24,11 +24,7 @@ def helper_make_names(n = 1):
         ret[name] = True
     return list(ret.keys())
 
-class OODChild(ood.ObservingOrderedDictionary, ood.ChildObserved):
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
-
-def assert_od_sane(item = ood.ObservingOrderedDictionary(), num = None):
+def assert_ood_sane(item = ood.Observer(), num = None):
     i = 0
     for children in item:
         i += 1
@@ -73,29 +69,29 @@ def assert_child_has_parents(child, num, parents = None):
             assert id(parent) in child._parents_by_id
 
 def test_init_ood():
-    od = ood.ObservingOrderedDictionary()
-    assert_od_sane(od, 0)
+    od = ood.Observer()
+    assert_ood_sane(od, 0)
     assert od._strict_index is None
     assert od._name_conflict is None
     assert od._redundant_add is None
 
 def test_init_child():
-    child = ood.ChildObserved()
+    child = ood.Observed()
     assert_child_name(child, "unnamed")
 
-    child = ood.ChildObserved(name="test")
+    child = ood.Observed(name="test")
     assert_child_name(child, "test")
 
     child.set_name("test2")
     assert_child_name(child, "test2")
 
 def test_init_ood_w_child():
-    ood_child = OODChild()
-    assert_od_sane(ood_child, 0)
+    ood_child = ood.Item()
+    assert_ood_sane(ood_child, 0)
     assert_child_name(ood_child, "unnamed")
 
-    ood_child = OODChild(name="test")
-    assert_od_sane(ood_child, 0)
+    ood_child = ood.Item(name="test")
+    assert_ood_sane(ood_child, 0)
     assert_child_name(ood_child, "test")
 
 def helper_make_items(names):
@@ -103,7 +99,7 @@ def helper_make_items(names):
     if isinstance(names, str):
         names = [names]
     for name in names:
-        ret.append(OODChild(name=name))
+        ret.append(ood.Item(name=name))
     return ret
 
 possible_errors = [e.ErrorLevel.IGNORE, e.ErrorLevel.WARN, e.ErrorLevel.ERROR, True, False]
@@ -116,7 +112,7 @@ def test_add_items_any_config(strict_index, name_conflict, redundant_add):
     parent.set_strict_index(strict_index)   # Testing this here # Not testing global set # Not testing __init__ set
     parent.set_name_conflict(name_conflict) # Testing this here # Not testing global set # Not testing __init__ set
     parent.set_redundant_add(redundant_add) # Testing this here # Not testing global set # Not testing __init__ set
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
 
     names = helper_make_names(68)
     children = helper_make_items(names[:30])
@@ -125,7 +121,7 @@ def test_add_items_any_config(strict_index, name_conflict, redundant_add):
 
     ## Basic Add-Item Several Children
     parent.add_items(*children)
-    assert_od_sane(parent, 30)
+    assert_ood_sane(parent, 30)
 
     for i, child in enumerate(parent._items_ordered):
         assert_child_name(child, children[i].get_name())
@@ -145,19 +141,19 @@ def test_add_items_any_config(strict_index, name_conflict, redundant_add):
 
     ## Add Item At Specific Key Points
     parent.add_items(*specific_position_children[0:2], position=0)
-    assert_od_sane(parent, 32)
+    assert_ood_sane(parent, 32)
     assert_get_item_equal(parent, specific_position_children[0], parent._items_ordered[0])
     assert_get_item_equal(parent, specific_position_children[1], parent._items_ordered[1])
     parent.add_items(*specific_position_children[2:4], position=len(parent))
-    assert_od_sane(parent, 34)
+    assert_ood_sane(parent, 34)
     assert_get_item_equal(parent, specific_position_children[2], parent._items_ordered[-2])
     assert_get_item_equal(parent, specific_position_children[3], parent._items_ordered[-1])
     parent.add_items(*specific_position_children[4:6], position=-len(parent))
-    assert_od_sane(parent, 36)
+    assert_ood_sane(parent, 36)
     assert_get_item_equal(parent, specific_position_children[4], parent._items_ordered[0])
     assert_get_item_equal(parent, specific_position_children[5], parent._items_ordered[1])
     parent.add_items(*specific_position_children[6:], position=-1) #TODO: -1 not appending should be documented
-    assert_od_sane(parent, 38)
+    assert_ood_sane(parent, 38)
     assert_get_item_equal(parent, specific_position_children[6], parent._items_ordered[-3])
     assert_get_item_equal(parent, specific_position_children[7], parent._items_ordered[-2])
 
@@ -171,7 +167,7 @@ def test_add_items_any_config(strict_index, name_conflict, redundant_add):
         positions.append(transformed)
         parent.add_items(child, position=new_pos)
         assert_get_item_equal(parent, child, parent._items_ordered[transformed])
-    assert_od_sane(parent, 68)
+    assert_ood_sane(parent, 68)
     actual_positions = []
     for i, pos in enumerate(positions):
         for j, pos2 in enumerate(actual_positions):
@@ -225,32 +221,32 @@ def test_add_item_redundant_add(strict_index, name_conflict):
     third_child = helper_make_items("Child Three")[0]
     parent = helper_make_items("Parent")[0]
     parent.add_items(child)
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
     parent.set_redundant_add(e.ErrorLevel.ERROR)
     with pytest.raises(e.RedundantAddException):
         parent.add_items(child)
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
     parent.set_redundant_add(e.ErrorLevel.WARN)
     with pytest.warns():
         parent.add_items(child)
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
     parent.set_redundant_add(e.ErrorLevel.IGNORE)
     parent.add_items(child)
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
 
     parent.set_redundant_add(e.ErrorLevel.ERROR)
     with pytest.raises(e.RedundantAddException):
         parent.add_items(second_child, second_child)
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
     parent.set_redundant_add(e.ErrorLevel.WARN)
     with pytest.warns():
         parent.add_items(second_child, second_child)
-    assert_od_sane(parent, 2)
+    assert_ood_sane(parent, 2)
     parent.set_redundant_add(e.ErrorLevel.IGNORE)
     parent.add_items(second_child, second_child)
-    assert_od_sane(parent, 2)
+    assert_ood_sane(parent, 2)
     parent.add_items(second_child, second_child, third_child, third_child)
-    assert_od_sane(parent, 3)
+    assert_ood_sane(parent, 3)
 
 @pytest.mark.parametrize("strict_index", possible_errors)
 @pytest.mark.parametrize("redundant_add", possible_errors)
@@ -258,38 +254,38 @@ def test_add_item_name_conflict(strict_index, redundant_add):
     children = helper_make_items(["A", "A", "B"])
     parent = helper_make_items("Parent")[0]
     parent.add_items(children[0])
-    assert_od_sane(parent, 1)
+    assert_ood_sane(parent, 1)
     parent.add_items(children[2])
-    assert_od_sane(parent, 2)
+    assert_ood_sane(parent, 2)
 
     ## Trying to add child again
     parent.set_name_conflict(e.ErrorLevel.ERROR)
     with pytest.raises(e.NameConflictException):
         parent.add_items(children[1])
-    assert_od_sane(parent, 2)
+    assert_ood_sane(parent, 2)
     parent.set_name_conflict(e.ErrorLevel.WARN)
     with pytest.warns(), pytest.raises(e.NameConflictException):
         parent.add_items(children[1])
-    assert_od_sane(parent, 2)
+    assert_ood_sane(parent, 2)
     parent.set_name_conflict(e.ErrorLevel.IGNORE)
     parent.add_items(children[1])
-    assert_od_sane(parent, 3)
+    assert_ood_sane(parent, 3)
 
     ## Trying to add same child twice in one call
     parent = helper_make_items("Parent")[0]
     children = helper_make_items(["A", "A", "B"])
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
     parent.set_name_conflict(e.ErrorLevel.ERROR)
     with pytest.raises(e.NameConflictException):
         parent.add_items(*children)
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
     parent.set_name_conflict(e.ErrorLevel.WARN)
     with pytest.warns(), pytest.raises(e.NameConflictException):
         parent.add_items(*children)
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
     parent.set_name_conflict(e.ErrorLevel.IGNORE)
     parent.add_items(*children)
-    assert_od_sane(parent, 3)
+    assert_ood_sane(parent, 3)
 
 def helper_make_selector(parent, child, random=False):
     selectors = []
@@ -320,12 +316,12 @@ def test_get_items(name_conflict, redundant_add):
     parent = helper_make_items("parent")[0]
     parent.set_name_conflict(name_conflict)
     parent.set_redundant_add(redundant_add)
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
     names = helper_make_names(600)
     children = helper_make_items(names[:300])
     not_children = helper_make_items(names[300:])
     parent.add_items(*children)
-    assert_od_sane(parent, 300)
+    assert_ood_sane(parent, 300)
     assert parent.get_items() == children
 
     parent.set_strict_index(e.ErrorLevel.ERROR)
@@ -425,12 +421,12 @@ def test_get_items_config_inverted(name_conflict, redundant_add):
     parent = helper_make_items("parent")[0]
     parent.set_name_conflict(name_conflict)
     parent.set_redundant_add(redundant_add)
-    assert_od_sane(parent, 0)
+    assert_ood_sane(parent, 0)
     names = helper_make_names(600)
     children = helper_make_items(names[:300])
     not_children = helper_make_items(names[300:])
     parent.add_items(*children)
-    assert_od_sane(parent, 300)
+    assert_ood_sane(parent, 300)
     assert parent.get_items() == children
 
     parent.set_strict_index(e.ErrorLevel.IGNORE)
@@ -532,29 +528,29 @@ def test_user_simulation():
     e.NameConflictException.default_level = False
     e.MultiParentException.default_level = False
     e.RedundantAddException.default_level = e.ErrorLevel.ERROR
-    parents = [OODChild(name="Alphabet Parent"), OODChild(name="Alphabet Parent2"), OODChild(name="Alphabet Parent2")]
-    children = [OODChild(name="A"), OODChild(name="B"), OODChild(name="C")]
+    parents = [ood.Item(name="Alphabet Parent"), ood.Item(name="Alphabet Parent2"), ood.Item(name="Alphabet Parent2")]
+    children = [ood.Item(name="A"), ood.Item(name="B"), ood.Item(name="C")]
 
     parents[0].add_items(children[0])
     assert id(children[0]) in parents[0]._items_by_id
-    assert_od_sane(parents[0], 1)
+    assert_ood_sane(parents[0], 1)
     assert_child_has_parents(children[0], 1, [parents[0]])
     assert parents[0].has_item("A")
     assert parents[0].has_item(children[0].get_name())
     assert parents[0].has_item(children[0])
 
     parents[0].add_items(children[1], children[2])
-    assert_od_sane(parents[0], 3)
+    assert_ood_sane(parents[0], 3)
     for child in children:
         assert_child_has_parents(child, 1, [parents[0]])
 
     parents[1].add_items(*children)
-    assert_od_sane(parents[1], 3)
+    assert_ood_sane(parents[1], 3)
     for child in children:
         assert_child_has_parents(child, 2, [parents[0], parents[1]])
 
     parents[2].add_items(children[0])
-    assert_od_sane(parents[2], 1)
+    assert_ood_sane(parents[2], 1)
     for i, child in enumerate(children):
         if not i:
             assert_child_has_parents(child, 3, [parents[0], parents[1], parents[2]])
@@ -570,9 +566,9 @@ def test_user_simulation():
     with pytest.raises(e.RedundantAddException):
         parents[2].add_items(children[0])
 
-    assert_od_sane(parents[0], 3)
-    assert_od_sane(parents[1], 3)
-    assert_od_sane(parents[2], 1)
+    assert_ood_sane(parents[0], 3)
+    assert_ood_sane(parents[1], 3)
+    assert_ood_sane(parents[2], 1)
     for i, child in enumerate(children):
         if not i:
             assert_child_has_parents(child, 3, [parents[0], parents[1], parents[2]])
@@ -582,7 +578,7 @@ def test_user_simulation():
     with pytest.raises(e.RedundantAddException):
         parents[2].add_items(children[2], children[0])
 
-    assert_od_sane(parents[2], 1)
+    assert_ood_sane(parents[2], 1)
     for i, child in enumerate(children):
         if not i:
             assert_child_has_parents(child, 3, [parents[0], parents[1], parents[2]])
@@ -617,9 +613,9 @@ def test_user_simulation():
     assert len(parents[0]._get_items_by_name("B")) == 1
     assert len(parents[0]._get_items_by_name("C")) == 1
 
-    clone_child = OODChild(name="A")
+    clone_child = ood.Item(name="A")
     parents[0].add_items(clone_child)
-    assert_od_sane(parents[0], 4)
+    assert_ood_sane(parents[0], 4)
     assert len(parents[0]._get_items_by_name("A")) == 2
     assert len(parents[0]._get_items_by_name("B")) == 1
     assert len(parents[0]._get_items_by_name("C")) == 1
@@ -748,15 +744,15 @@ def test_user_simulation():
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     layer1, layer2, layer3 = [], [], []
     for letter in alphabet:
-        layer1.append(OODChild(name = letter))
-        layer2.append(OODChild(name = letter))
-        layer3.append(OODChild(name = letter))
+        layer1.append(ood.Item(name = letter))
+        layer2.append(ood.Item(name = letter))
+        layer3.append(ood.Item(name = letter))
 
     layer1[0].add_items(*layer2)
-    assert_od_sane(layer1[0], len(alphabet))
+    assert_ood_sane(layer1[0], len(alphabet))
     for child in layer1[0]:
-        assert isinstance(child, OODChild)
-        assert_od_sane(child, 0)
+        assert isinstance(child, ood.Item)
+        assert_ood_sane(child, 0)
 
     for letter, child in zip(alphabet, layer1[0]):
         assert child.get_name() == letter
@@ -969,10 +965,10 @@ def test_user_simulation():
     assert parents[0] not in clone_child._parents_by_id
     assert len(clone_child._parents_by_id) == num_parents_old - 1
     assert popped == [clone_child]
-    assert_od_sane(parents[0], 3)
+    assert_ood_sane(parents[0], 3)
 
     parents[1].add_items(clone_child, position=0)
-    assert_od_sane(parents[1], 4)
+    assert_ood_sane(parents[1], 4)
     assert len(parents[1]._get_items_by_name("A")) == 2
     assert len(parents[1]._get_items_by_name("B")) == 1
     assert len(parents[1]._get_items_by_name("C")) == 1
@@ -987,7 +983,7 @@ def test_user_simulation():
     layer1[2].add_items(*layer2)
     for i, child in enumerate(layer1[2]):
         child.add_items(layer3[0], layer3[i%2+1])
-        assert_od_sane(child, 2)
+        assert_ood_sane(child, 2)
     assert layer1[2].get_items(s.Has_Children(layer2[0])) == []
     assert layer1[2].get_items(s.Has_Children(layer2[2])) == []
     assert layer1[2].get_items(s.Has_Children(layer3[0])) == layer2
@@ -1010,8 +1006,8 @@ def test_user_simulation():
     assert layer1[2].has_item(layer2[0])
     assert len(layer1[2].get_items("b")) == 2
     assert not layer1[2].has_item("ABC")
-    strict_parent = OODChild(name="stricty", name_conflict=True)
-    assert_od_sane(strict_parent, 0)
+    strict_parent = ood.Item(name="stricty", name_conflict=True)
+    assert_ood_sane(strict_parent, 0)
     assert layer2[1].get_name() == "b"
     assert layer2[2].get_name() == "c"
     strict_parent.add_items(layer2[1], layer2[2])
@@ -1033,8 +1029,8 @@ def test_user_simulation():
         strict_parent.add_items(layer3[0], layer3[1], layer3[2])
     assert len(strict_parent) == 2
     with pytest.raises(TypeError):
-        OODChild(name=3)
-    one_parent_child = OODChild(name="one_parent", multi_parent=True)
+        ood.Item(name=3)
+    one_parent_child = ood.Item(name="one_parent", multi_parent=True)
     layer1[0].add_items(one_parent_child)
     with pytest.raises(Exception):
         layer1[1].add_items(one_parent_child)

@@ -30,7 +30,7 @@ class Has_Children(Selector): # untested
     def _process(self, parent):
         ret_items = []
         for item in parent.get_items():
-            if isinstance(item, ood.ObservingOrderedDictionary):
+            if isinstance(item, ood.Observer):
                 for selector in self.sub_selectors:
                     if item.has_item(selector):
                         ret_items.append(item)

@@ -1,7 +1,7 @@
 import ood.selectors as s
 import ood.exceptions as e
 
-class ObservingOrderedDictionary():
+class Observer():
     _type="item"
     _child_type="item"
     # Needs to accept a custom indexer
@@ -71,7 +71,7 @@ class ObservingOrderedDictionary():
             self._add_item_to_by_name(child)
         # if you change your name, you _have_ to tell your parent.
         # we could test every set_name() at runtime for calling this function
-        # we could only allow only ChildObserved inherited classes (they could still hack)
+        # we could only allow only Observed inherited classes (they could still hack)
         # we could also dig around to see if we have the child, and if our name matches the
         # current name
     def _abs_index(self, index):
@@ -89,7 +89,7 @@ class ObservingOrderedDictionary():
             items = list(dict.fromkeys(x for x in items).keys())
         names = {}
         for item in items:
-            if not isinstance(item, ChildObserved) or not hasattr(item, "get_name") or not hasattr(item, "_register_parent"):
+            if not isinstance(item, Observed) or not hasattr(item, "get_name") or not hasattr(item, "_register_parent"):
                 raise TypeError(f"All items added must of type {self._child_type}.")
             elif id(item) in self._items_by_id:
                 err = e.RedundantAddException({self._type:item.get_name()}, kind=self._type, level=self._redundant_add)
@@ -290,7 +290,7 @@ class ObservingOrderedDictionary():
             del self._items_by_id[id(item)]
         return items
 
-class ChildObserved(s.Selector):
+class Observed(s.Selector):
     _type="item"
     def __init__(self, *args, **kwargs):
         self._name = kwargs.pop('name', "unnamed")
