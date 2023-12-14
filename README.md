@@ -125,7 +125,7 @@ class RedNodes(ood.ObservingOrderedDictionary, ood.ChildObserved):
 ### Adding more observed variables:
 
 Children can call `_notify_parents(parameter=..., old_parameter=...)`, where parameter would be the parameter that changes.
-For example, `set_name("new_name")` calls `_notify_parents(self, name="new_name", old_name="old_name").
+For example, `set_name("new_name")` calls `_notify_parents(self, name="new_name", old_name="old_name")`.
 
 On the parent side, you must implement 
 
