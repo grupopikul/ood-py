@@ -33,7 +33,7 @@ o.move_items(*selectors, ...) # requiere un de before=, after=, position=, dista
 # (antes, después, posición, distancia)
 ```
 
-Secundarios debe heredar `class ChildObserved()` cuyo `__init__(self, **kwargs)´ quiere un argumento de ´name´. Proveerá métodos `get_name()´ y ´set_name()`
+Secundarios debe heredar `class ChildObserved()` cuyo `__init__(self, **kwargs)` quiere un argumento de `name`. Proveerá métodos `get_name()` y `set_name()`
 
 ```python
 import ood
@@ -159,7 +159,7 @@ Secundarios llaman `_notify_parents(parámetror=..., old_parámetro=...)`, donde
 Por ejemplo, `set_name("nombre_nuevo")` llama `_notify_parents(self, name="nombre_nuevo", old_name="nombre_antiguo").
 
 where parameter would be the parameter that changes.
-For example, `set_name("new_name")` calls `_notify_parents(self, name="new_name", old_name="old_name").
+For example, `set_name("new_name")` calls `_notify_parents(self, name="new_name", old_name="old_name")`.
 
 Por el padre, se debe implementar:
 
