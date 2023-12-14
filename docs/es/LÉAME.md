@@ -134,7 +134,7 @@ class NodoRojo(ood.ObservingOrderedDictionary, ood.ChildObserved):
 ### Mejorar las variables observadas:
 
 Secundarios llaman `_notify_parents(parámetror=..., old_parámetro=...)`, donde parámetro es lo que cambia.
-Por ejemplo, `set_name("nombre_nuevo")` llama `_notify_parents(self, name="nombre_nuevo", old_name="nombre_antiguo").
+Por ejemplo, `set_name("nombre_nuevo")` llama `_notify_parents(self, name="nombre_nuevo", old_name="nombre_antiguo")`.
 
 Por el padre, se debe implementar:
 
