@@ -72,7 +72,7 @@ s.Has_Child(selector) #
 
 #### Clase 3:
 
-Todo `ChildObserved` es un selectors que devuelve su mismo. Ejemplo:
+Todo `ChildObserved` es un selector que devuelve su mismo. Ejemplo:
 ```python
 import ood
 
@@ -89,7 +89,7 @@ parent.has_item("B")        # False
 parent.has_item(1)          # False
 ```
 
-### Configuration Settings:
+### Configuración
 
 `ood.exceptions` tiene `ErrorLevel.IGNORE`, `ErrorLevel.WARN` y `ErrorLevel.ERROR`. `True` también `ERROR` y `False` es `IGNORE`.
 
@@ -135,9 +135,6 @@ class NodoRojo(ood.ObservingOrderedDictionary, ood.ChildObserved):
 
 Secundarios llaman `_notify_parents(parámetror=..., old_parámetro=...)`, donde parámetro es lo que cambia.
 Por ejemplo, `set_name("nombre_nuevo")` llama `_notify_parents(self, name="nombre_nuevo", old_name="nombre_antiguo").
-
-where parameter would be the parameter that changes.
-For example, `set_name("new_name")` calls `_notify_parents(self, name="new_name", old_name="old_name")`.
 
 Por el padre, se debe implementar:
 
