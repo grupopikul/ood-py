@@ -11,7 +11,9 @@ NB: While `ood` supports iteration and `len()`, indexing by `[]` is not supporte
 ## Basic Use:
 
 ```python
-o = ObservingOrderedDictionary(*items_to_add)
+import ood
+
+o = ood.ObservingOrderedDictionary(*items_to_add)
 o.add_items(*items_to_add)
 o.pop_items(*items_to_pop) # returns list
 o.get_items(*selectors) # returns list
@@ -21,17 +23,20 @@ o.reorder_all_items([selectors])
 o.move_items(*selectors, ...) # must have one of #before=, after=, position=, distance=
 ```
 
-Children must inherit class `ChildObserved`, whose `__init()__` takes a `name=`, and will supply `.get_name` and `.set_name`:
+Children must inherit `class ChildObserved()`, whose `__init(self, **kwargs)__` takes a `name` argument, and will supply methods `get_name()` and `set_name()`:
+
 ```python
-class Item(ChildObserved):
+import ood
+
+class Item(ood.ChildObserved):
     pass
 
 o = Item("test")
 o.get_name() == "test" # True
 o.set_name("test2")
-o.get_name() == "test2"
+o.get_name() == "test2" # True
 ```
-As well as other internal \_functions used in parent-child communication.
+Also supplied are other internal \_functions() used in parent-child communication.
 
 ### Selectors
 
