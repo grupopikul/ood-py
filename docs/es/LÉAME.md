@@ -3,11 +3,11 @@
 
 El dicionario es una estructura de datos para acceder a elementos contenidos por nombre o posición. Se cree para ser heredado. (o compuesto: yo lo herado en mis aplicaciones, pero es casi compuesto como yo sobrescribo/anulo y renombro cada método público)
 
-Los objetos padres se registrarán con sus objetos secundarios, que avisan al objeto padre de cambios a sus (de lo secundario) propriedades.
+Los objetos padres (`Observer()`) se registrarán con sus objetos secundarios, los hijos (`Observed()`), que avisan al objeto padre de cambios a sus (de lo hijo) propriedades. Los dos clases se combinan en `Item(Observer, Observed)`.
 
 Está bien, si no caóticamente, probado.
 
-Nota: si bien `ood` incluye iteración y `len()`, no se indexa por `[]`
+Nota: si bien `Observer()` incluye iteración y `len()`, no se indexa por `[]`
 
 ## Uso Básico
 
@@ -15,7 +15,7 @@ Nota: si bien `ood` incluye iteración y `len()`, no se indexa por `[]`
 import ood
 
 # Inicializar
-o = ood.ObservingOrderedDictionary(*para_agregar)
+o = ood.Observer(*para_agregar)
 
 o.add_items(*para_agregar)
 o.pop_items(*para_echar) # return list
@@ -33,24 +33,21 @@ o.move_items(*selectors, ...) # requiere un de before=, after=, position=, dista
 # (antes, después, posición, distancia)
 ```
 
-Secundarios debe heredar `class ChildObserved()` cuyo `__init__(self, **kwargs)` quiere un argumento de `name`. Proveerá métodos `get_name()` y `set_name()`
+Secundarios debe heredar `class Observed()` cuyo `__init__(self, **kwargs)` quiere un argumento de `name`. Proveerá métodos `get_name()` y `set_name()`
 
 ```python
 import ood
 
-class Cosa(ood.ChildObserved):
-    pass
-
-o = Cosa("SoyYo")
+o = Observed(name = "SoyYo")
 o.get_name() == "SoyYo" # True
 o.set_name("FooBar")
 o.get_name() == "FooBar" # True
 ```
-También proveidos son otras  `_funcionas()` internas que se usa en communicación entre objetos y los secundarios.
+También proveidos son otras  `_funcionas()` internas que se usa en communicación entre objetos y los hijos.
 
 ### Selectores
 
-Un *selector* primitivo es o un `int` (la posición del secundario) o un `str` (el nombre).
+Un *selector* primitivo es o un `int` (la posición del hijo) o un `str` (el nombre).
 
 También hay una `class Selector()`, que se heredan por 3 otras clases útiles (dos de `ood.selectors`)
 
@@ -61,24 +58,24 @@ import ood
 import ood.selectors as s
 
 # Clase 1:
-# Si se permite secundarios con los mismos nombre, eligir por índice también
+# Si se permite hijos con los mismos nombre, eligir por índice también
 # (Ordenado por by introducción)
-s.Name_I(secundario_nombre str, secundario_índice int)
+s.Name_I(hijo_nombre str, hijo_índice int)
 
 # Clase 2:
-# Producir secundarios que tengan sus mismos el selector
+# Producir hijos que tengan sus mismos el selector
 s.Has_Child(selector) # 
 ```
 
 #### Clase 3:
 
-Todo `ChildObserved` es un selector que devuelve su mismo. Ejemplo:
+Todo `Observed()` es un selector que devuelve su mismo. Ejemplo:
 ```python
 import ood
 
-hijo = ood.ObservedChild("A")
-no_hijo = ood.ChildObserved("B")
-padre = ood.ObservingOrderedDictionary(hijo)
+hijo = ood.Observed("A")
+no_hijo = ood.Observed("B")
+padre = ood.Observer(hijo)
 
 parent.has_item(hijo)   # True
 parent.has_item("A")    # True
@@ -101,10 +98,10 @@ import ood.exception as err
 # ¿Si el índice no se existe, se recibe error o lista vacía (o None)?
 err.StrictIndexException.default_level = err.ErrorLevel.IGNORE
 
-# ¿Se puede tener más de un padre, un secundario?
+# ¿Se puede tener más de un padre, un hijo?
 err.MultiParentException = err.ErrorLevel.ERROR # WARN no posible
 
-# ¿Se puede tener el mismo nombre, unos secundarios?
+# ¿Se puede tener el mismo nombre, unos hijos?
 err.NameConflictException = err.ErrorLevel.ERROR # WARN no posible
 
 # ¿Se avisa, se ignora, o se leventa error si se agrega el mismo secungadrio dos veces? 
@@ -114,10 +111,10 @@ err.RedundantAddException = err.ErrorLevel.WARN
 
 ## Extender
 
-El objecto puede heredar ambos `ObservingOrderedDictionary` and `ChildObserved` para ser los dos un padre y secundario. Si sobreescribir los variables del clase `_type` y `_child_type`, errores generados usarán esas palabras en vez de "item".
+Si sobreescribir los variables del clase `_type` y `_child_type`, errores generados usarán esas palabras en vez de "item".
 
 ```python
-class NodoRojo(ood.ObservingOrderedDictionary, ood.ChildObserved):
+class NodoRojo(ood.Item):
     _type="NodoRojo"
     _child_type="Nodo"
     def __init__(self, *args, **kwargs):
@@ -143,7 +140,7 @@ o._child_options(self, hijo, **kwargs)
 o._child_update(self, hijo, **kwargs)
 ```
 
-`_child_options()` debe `raise` (leventar) un error, y el secundario debe entender que el cambio de parámetro no se permitirá. (Se usa en el caso que haya la configuración de qué cada secundario tenga un nombre único) 
+`_child_options()` debe `raise` (leventar) un error, y el hijo debe entender que el cambio de parámetro no se permitirá. (Se usa en el caso que haya la configuración de qué cada hijo tenga un nombre único) 
 
 ```python
 def set_name(self, name):

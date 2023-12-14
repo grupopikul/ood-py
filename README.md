@@ -4,18 +4,18 @@
 
 The observing ordered dictionary is a datastructure for accessing child-elements by name or position. It is meant to be inherited (or composed: I inherit it in my applications, but it's almost composed given I override and rename every public method).
 
-Parent objects will register themselves with their child elements, who can notify the parent object of changes to its (the child's) properties.
+Parent objects (`Observer()`) will register themselves with their child elements (`Observed()`), who can notify the parent object of changes to its (the child's) properties. The classes are combined by the class `Item(Observer, Observed)`.
 
 It is well, if not chaotically, tested.
 
-NB: While `ood` supports iteration and `len()`, indexing by `[]` is not supported yet.
+NB: While `Observer()` supports iteration and `len()`, indexing by `[]` is not supported yet.
 
 ## Basic Use:
 
 ```python
 import ood
 
-o = ood.ObservingOrderedDictionary(*items_to_add)
+o = ood.Observer(*items_to_add)
 o.add_items(*items_to_add)
 o.pop_items(*items_to_pop) # returns list
 o.get_items(*selectors) # returns list
@@ -25,15 +25,12 @@ o.reorder_all_items([selectors])
 o.move_items(*selectors, ...) # must have one of before=, after=, position=, distance=
 ```
 
-Children must inherit `class ChildObserved()`, whose `__init__(self, **kwargs)` takes a `name` argument, and will supply methods `get_name()` and `set_name()`:
+Children must inherit `class Observed()`, whose `__init__(self, **kwargs)` takes a `name` argument, and will supply methods `get_name()` and `set_name()`:
 
 ```python
 import ood
 
-class Item(ood.ChildObserved):
-    pass
-
-o = Item("test")
+o = Observed(name = "test")
 o.get_name() == "test" # True
 o.set_name("test2")
 o.get_name() == "test2" # True
@@ -64,13 +61,13 @@ s.Has_Child(selector) #
 
 #### Class 3:
 
-All `ChildObserved` are also selectors which specify to return themselves. Example:
+All `Observed` are also selectors which specify to return themselves. Example:
 ```python
 import ood
 
-child = ood.ObservedChild("A")
-not_child = ood.ChildObserved("B")
-parent = ood.ObservingOrderedDictionary(child)
+child = ood.Observed("A")
+not_child = ood.Observed("B")
+parent = ood.Observer(child)
 
 parent.has_item(child)  # True
 parent.has_item("A")    # True
@@ -105,10 +102,10 @@ err.RedundantAddException = err.ErrorLevel.WARN
 
 ## Extending
 
-Your object can inherit both `ObservingOrderedDictionary` and `ChildObserved` to be both a parent and child object. If you override class variables `_type` and `_child_type`, exceptions generated will use those terms instead of "item" when raising exceptions.
+If you inhert Observer() or Item(), you can override class variables `_type` and `_child_type`, exceptions generated will use those terms instead of "item" when raising exceptions.
 
 ```python
-class RedNodes(ood.ObservingOrderedDictionary, ood.ChildObserved):
+class RedNodes(ood.Item):
     _type="RedNode"
     _child_type="Node"
     def __init__(self, *args, **kwargs):
