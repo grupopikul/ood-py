@@ -20,10 +20,10 @@ o.get_items(*selectors) # returns list
 o.get_item(selector) # see Selectors section below
 o.has_item(selector)
 o.reorder_all_items([selectors])
-o.move_items(*selectors, ...) # must have one of #before=, after=, position=, distance=
+o.move_items(*selectors, ...) # must have one of before=, after=, position=, distance=
 ```
 
-Children must inherit `class ChildObserved()`, whose `__init(self, **kwargs)__` takes a `name` argument, and will supply methods `get_name()` and `set_name()`:
+Children must inherit `class ChildObserved()`, whose `__init__(self, **kwargs)` takes a `name` argument, and will supply methods `get_name()` and `set_name()`:
 
 ```python
 import ood
@@ -44,6 +44,8 @@ A primitive *selector* is either an `int` (the position of the child) or a `str`
 
 There is also a `class Selector()`, which is inherited by three other classes (two from `ood.selectors`) you can use:
 
+#### Classes 1, 2
+
 ```python
 import ood
 import ood.selectors as s
@@ -53,7 +55,7 @@ import ood.selectors as s
 # Ordered by insertion.
 s.Name_I(child_name str, child_index int)
 
-# Clas 2:
+# Class 2:
 # Select children which they themselves have specified children.
 s.Has_Child(selector) # 
 ```
@@ -92,7 +94,7 @@ err.StrictIndexException.default_level = err.ErrorLevel.IGNORE
 # Can one child have multiple parents?
 err.MultiParentException = err.ErrorLevel.ERROR # WARN not possible
 
-# Can multiple children of one parent have the samse name?
+# Can multiple children of one parent have the same name?
 err.NameConflictException = err.ErrorLevel.ERROR # WARN not possible
 
 # Do we warn or error if you add the same child twice?
@@ -113,7 +115,7 @@ class RedNodes(ood.ObservingOrderedDictionary, ood.ChildObserved):
         ... # Do whatever you want
 
     def get_node(self, selector, **kwargs):
-        return super().__get_item(self, selector, **kwargs)
+        return super().get_item(self, selector, **kwargs)
     
     ... # etc
 ```
