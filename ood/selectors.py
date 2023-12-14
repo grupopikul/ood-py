@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from ood.exceptions import SelectorTypeError
-import ood.ObservingOrderedDictionary as ood
+import ood
 
 class Selector(ABC):
 
@@ -30,7 +30,7 @@ class Has_Children(Selector): # untested
     def _process(self, parent):
         ret_items = []
         for item in parent.get_items():
-            if isinstance(item, ood):
+            if isinstance(item, ood.ObservingOrderedDictionary):
                 for selector in self.sub_selectors:
                     if item.has_item(selector):
                         ret_items.append(item)

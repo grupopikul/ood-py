@@ -30,7 +30,7 @@ class OODChild(ood.ObservingOrderedDictionary, ood.ChildObserved):
 
 def assert_od_sane(item = ood.ObservingOrderedDictionary(), num = None):
     i = 0
-    for item in item:
+    for children in item:
         i += 1
     assert len(item._items_by_id) == i
     assert len(item._items_by_id) == len(item._items_ordered)
@@ -38,15 +38,15 @@ def assert_od_sane(item = ood.ObservingOrderedDictionary(), num = None):
     assert len(item._items_by_id) ==  len(item)
     if num is not None:
         assert len(item._items_by_id) == num
-    for i, item in enumerate(item):
-        assert item == item._items_ordered[i]
+    for i, child in enumerate(item):
+        assert child == item._items_ordered[i]
 
     all_items = {}
     for name in item._items_by_name:
-        for item in name:
-            if id(item) in all_items:
+        for child in name:
+            if id(child) in all_items:
                 pytest.fail("Dictionary is inconsistent- same item has > 1 name")
-                all_items[id(item)] = True
+                all_items[id(child)] = True
 
 def assert_get_item_equal(parent, *args):
     assert len(args) > 1
@@ -524,18 +524,6 @@ def test_get_items_config_inverted(name_conflict, redundant_add):
 
 
 
-# Fix insert in move
-# Test Name Changing On 
-
-# TODO:
-# get_item
-# has_item
-# pop
-# move
-
-# How to make sure multi_parent does what it's supposed to
-# Write Tests for Selectors
-# Write a scramble function() which supposedly does nothing to a dictionary but uses a lot of functions
 
 
 def test_user_simulation():
