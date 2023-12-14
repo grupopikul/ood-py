@@ -36,13 +36,13 @@ o.get_name() == "test" # True
 o.set_name("test2")
 o.get_name() == "test2" # True
 ```
-Also supplied are other internal \_functions() used in parent-child communication.
+Also supplied are other internal `_functions()` used in parent-child communication.
 
 ### Selectors
 
-A primitive selector is either an integer (the position of the child) or a string (the name of the child).
+A primitive *selector* is either an `int` (the position of the child) or a `str` (the name of the child).
 
-There is also a `class Selector()`, which is inherited by three other classes you can use from `ood.selectors`:
+There is also a `class Selector()`, which is inherited by three other classes (two from `ood.selectors`) you can use:
 
 ```python
 import ood
@@ -58,7 +58,7 @@ s.Name_I(child_name str, child_index int)
 s.Has_Child(selector) # 
 ```
 
-Class 3:
+#### Class 3:
 
 All `ChildObserved` are also selectors which specify to return themselves. Example:
 ```python
@@ -114,6 +114,7 @@ class RedNodes(ood.ObservingOrderedDictionary, ood.ChildObserved):
 
     def get_node(self, selector, **kwargs):
         return super().__get_item(self, selector, **kwargs)
+    
     ... # etc
 ```
 
