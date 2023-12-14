@@ -3,11 +3,11 @@
 
 El dicionario es una estructura de datos para acceder a elementos contenidos por nombre o posición. Se cree para ser heredado. (o compuesto: yo lo herado en mis aplicaciones, pero es casi compuesto como yo sobrescribo/anulo y renombro cada método público)
 
-Los objetos padres se registrarán con sus objectos secundarios, que avisan al objecto padre de cambios a sus (del secundario) propriedades.
+Los objetos padres se registrarán con sus objetos secundarios, que avisan al objeto padre de cambios a sus (de lo secundario) propriedades.
 
 Está bien, si no caóticamente, probado.
 
-Nota: si bien `ood` incluye iteración y `len()`, indexar por `[]` no
+Nota: si bien `ood` incluye iteración y `len()`, no se indexa por `[]`
 
 ## Uso Básico
 
@@ -47,28 +47,6 @@ o.set_name("FooBar")
 o.get_name() == "FooBar" # True
 ```
 También proveidos son otras  `_funcionas()` internas que se usa en communicación entre objetos y los secundarios.
-
-### Configuration Settings:
-
-`ood.exceptions` has `ErrorLevel.IGNORE`, `ErrorLevel.WARN` and `ErrorLevel.ERROR`. `True` is also `ERROR` and `False` is `IGNORE`.
-
-The default values are shown below, they can be overridden:
-
-```python
-import ood.exception as err
-
-# Do non-existing indices to get_item(s), pop_items produce errors or empty array (or None)?
-err.StrictIndexException.default_level = err.ErrorLevel.IGNORE
-
-# Can one child have multiple parents?
-err.MultiParentException = err.ErrorLevel.ERROR # WARN not possible
-
-# Can multiple children of one parent have the samse name?
-err.NameConflictException = err.ErrorLevel.ERROR # WARN not possible
-
-# Do we warn or error if you add the same child twice?
-err.RedundantAddException = err.ErrorLevel.WARN
-```
 
 ### Selectores
 
