@@ -1,3 +1,5 @@
+import weakref
+
 import ood.selectors as s
 import ood.exceptions as e
 
@@ -297,7 +299,7 @@ class Observed(s.Selector):
         if not isinstance(self._name, str):
             raise TypeError("Name must be a string, please")
         self._multi_parent = kwargs.pop('multi_parent', None)
-        self._parents_by_id = {}
+        self._parents_by_id = weakref.WeakValueDictionary
 
         super().__init__(*args, **kwargs)
 
