@@ -299,7 +299,7 @@ class Observed(s.Selector):
         if not isinstance(self._name, str):
             raise TypeError("Name must be a string, please")
         self._multi_parent = kwargs.pop('multi_parent', None)
-        self._parents_by_id = weakref.WeakValueDictionary
+        self._parents_by_id = weakref.WeakValueDictionary({})
 
         super().__init__(*args, **kwargs)
 
@@ -342,6 +342,7 @@ class Observed(s.Selector):
         return list(self._parents_by_id.values())
 
     def _notify_parents(self, **kwargs):
+        if len(self._parents_by_id) == 0: return
         for parent in self._parents_by_id.values():
             parent._child_options(self, **kwargs)
         for parent in self._parents_by_id.values():
