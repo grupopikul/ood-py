@@ -348,7 +348,7 @@ def test_get_items(name_conflict, redundant_add):
                 last_pos = pos
 
     # Invalid Types
-    invalid_types = [[], object(), 3.120, (), {}]
+    invalid_types = [object(), 3.120, (), {}]
     for kind in invalid_types:
         with pytest.raises(e.SelectorTypeError):
             parent.get_items(kind)
@@ -453,7 +453,7 @@ def test_get_items_config_inverted(name_conflict, redundant_add):
                 last_pos = pos
 
     # Invalid Types
-    invalid_types = [[], object(), 3.120, (), {}]
+    invalid_types = [object(), 3.120, (), {}]
     for kind in invalid_types:
         with pytest.raises(e.SelectorTypeError):
             parent.get_items(kind)

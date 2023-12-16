@@ -171,7 +171,9 @@ class Observer():
             selectors = []
         for i, selector in enumerate(selectors):
             new_items = None
-            if isinstance(selector, int):
+            if isinstance(selector, list):
+                new_items = self.get_items(*selector, **kwargs)
+            elif isinstance(selector, int):
                 new_items = [self._get_item_by_index(selector)]
             elif isinstance(selector, slice):
                 new_items = self._get_items_by_slice(selector)
@@ -198,6 +200,7 @@ class Observer():
 
     def get_item(self, selector, **kwargs):
         if selector is None: raise ValueError(f"get_{self._type}() not passed selector")
+        if isinstance(selector, list): raise e.SelectorTypeError("get_{self._type} won't accept a list")
         match = kwargs.get('match', 0)
         strict_index = kwargs.get('strict_index', self._strict_index)
         items = self.get_items(selector, **kwargs)
@@ -210,6 +213,7 @@ class Observer():
     # Because we can't check to see if we've supplied a correct object type, we can only return true or false
     def has_item(self, selector):
         if selector is None: raise ValueError(f"has_{self._type}() not passed selector")
+        if isinstance(selector, list): raise e.SelectorTypeError("has_{self._type} won't accept a list")
         try:
             self.get_item(selector, strict_index=True)
             return True
@@ -282,15 +286,24 @@ class Observer():
             self.move_items(*items, position=position)
 
     def pop_items(self, *selectors, **kwargs):
-        # strict index passed to get_items
-        if not selectors or len(selectors)==0: return []
-        items = self.get_items(*selectors, **kwargs)
+        strict_index = kwargs.get('strict_index', True) # Better strict here unless overridden
+        _all = kwargs.pop('all', False)
+        _all = kwargs.pop('_all', _all)
+        if not _all and ( not selectors or len(selectors)==0): return []
+        items = self.get_items(*selectors, **kwargs) if not _all else self._items_ordered
         for item in items:
             item._deregister_parent(self)
             self._items_ordered.remove(item)
             self._remove_item_from_by_name(item)
             del self._items_by_id[id(item)]
         return items
+
+    def pop_all(self):
+        return self.pop_items(_all=True)
+
+    def abandon(self):
+        self.pop_all()
+        if hasattr(super(), "abandon"): super().abandon()
 
 class Observed(s.Selector):
     _type="item"
@@ -326,17 +339,20 @@ class Observed(s.Selector):
             raise e
 
     def _register_parent(self, parent):
-        if id(parent) in self._parents_by_id: return # could raise redundand_add error here
-        if len(self._parents_by_id)>=1:
+        if id(parent) in self._parents_by_id: return
+        if len(self._parents_by_id)>=1: # worried that weakref won't work fast enough
             err = e.MultiParentException(kind=self._type, level=self._multi_parent)
             if err: raise err
         self._parents_by_id[id(parent)] = parent
 
 
-    def _deregister_parent(self, *parents):
+    def _deregister_parent(self, *parents): # should be plural
         for parent in parents:
             if id(parent) in self._parents_by_id:
-                del self._parents_by_id[id(parent)]
+                try:
+                    del self._parents_by_id[id(parent)]
+                except:
+                    pass
 
     def _get_parents(self):
         return list(self._parents_by_id.values())
@@ -348,3 +364,6 @@ class Observed(s.Selector):
         for parent in self._parents_by_id.values():
             parent._child_update(self, **kwargs)
 
+    def abandon(self):
+        self._deregister_parent(*self._get_parents())
+        if hasattr(super(), "abandon"): super().abandon()
