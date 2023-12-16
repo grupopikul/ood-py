@@ -79,6 +79,7 @@ class Observer():
     def _abs_index(self, index):
         return index if index >= 0 else len(self)+index
 
+    # might take before or after as well
     def add_items(self, *items, **kwargs):
         position = kwargs.pop("position", len(self))
         if not position == len(self) and not self._check_index(position):
