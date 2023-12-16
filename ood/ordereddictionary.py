@@ -224,6 +224,7 @@ class Observer():
             if isinstance(selector, int):
                 positions_new.append(selector)
             else:
+                # no name conflict setting would have trouble here
                 positions_new.append(self._items_ordered.index(self.get_item(selector, strict_index=True)))
         if not ( len(set(positions_new)) == len(order) == len(positions_new) == len(set(order)) == len(self) ):
             raise e.SelectorError("You must provide a list of all objects by some selector.") from ValueError()
