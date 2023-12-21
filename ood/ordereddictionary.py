@@ -85,7 +85,7 @@ class Observer():
         if not position == len(self) and not self._check_index(position):
             raise IndexError("Cannot supply a index out of range")
         position = self._abs_index(position)
-        # TODO: make sure we do this in Move
+
         if len(items) != len(set(items)):
             err = e.RedundantAddException({"args":items}, kind=self._type, level=self._redundant_add)
             if err: raise err
