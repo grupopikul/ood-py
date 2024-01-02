@@ -285,19 +285,13 @@ class Observer():
 
     def pop_items(self, *selectors, **kwargs):
         strict_index = kwargs.pop('strict_index', True) # Better strict here unless overridden
-        _all = kwargs.pop('all', False)
-        _all = kwargs.pop('_all', _all)
-        if not _all and ( not selectors or len(selectors)==0): return []
-        items = self.get_items(*selectors, strict_index=strict_index, **kwargs) if not _all else self._items_ordered.copy()
+        items = self.get_items(*selectors, strict_index=strict_index, **kwargs)
         for item in items:
             item._deregister_parent(self)
             self._items_ordered.remove(item)
             self._remove_item_from_by_name(item)
             del self._items_by_id[id(item)]
         return items
-
-    def pop_all(self):
-        return self.pop_items(_all=True)
 
     def abandon(self):
         self.pop_all()
