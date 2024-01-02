@@ -16,6 +16,9 @@ class Observer():
         self._items_by_name = {}
         self._items_by_id = {}
 
+        self._child_option_funcs = {}
+        self._child_update_funcs = {}
+        self._add_listener("old_name", self._child_options_new_name, self._child_update_new_name)
 
         super().__init__(*args, **kwargs)
 
@@ -56,8 +59,12 @@ class Observer():
             if len(self._items_by_name[name]) == 0:
                 del self._items_by_name[name]
 
-    def _child_options(self, child, **kwargs):
-        old_name = kwargs.get('old_name', None)
+    def _add_listener(self, kwarg, option, update):
+        self._child_option_funcs[kwarg] = option
+        self._child_update_funcs[kwarg] = update
+
+    def _child_options_new_name(self, child, **kwargs):
+        old_name = kwargs.get('old_name')
         if old_name is not None and old_name in self._items_by_name:
             if not isinstance(child.get_name(), str):
                 raise TypeError(f"All {self._child_type} must have a get_name() function which returns a string.")
@@ -65,17 +72,23 @@ class Observer():
                 err = e.NameConflictException(kind=self._type, level=self._name_conflict)
                 if err: raise err
 
-    def _child_update(self, child, **kwargs):
-        self._child_options(child, **kwargs)
+    def _child_update_new_name(self, child, **kwargs):
+        self._child_options_new_name(child, **kwargs)
         old_name = kwargs.get('old_name', None)
         if old_name is not None:
             self._remove_item_from_by_name(child, name=old_name)
             self._add_item_to_by_name(child)
-        # if you change your name, you _have_ to tell your parent.
-        # we could test every set_name() at runtime for calling this function
-        # we could only allow only Observed inherited classes (they could still hack)
-        # we could also dig around to see if we have the child, and if our name matches the
-        # current name
+
+    def _child_options(self, child, **kwargs):
+        for arg in kwargs:
+            if arg in self._child_option_funcs:
+                self._child_option_funcs[arg](child, **{arg:kwargs[arg]})
+
+    def _child_update(self, child, **kwargs):
+        for arg in kwargs:
+            if arg in self._child_option_funcs:
+                self._child_update_funcs[arg](child, **{arg:kwargs[arg]})
+
     def _abs_index(self, index):
         return index if index >= 0 else len(self)+index
 
