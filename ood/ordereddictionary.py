@@ -179,6 +179,7 @@ class Observer():
     # If selector makes no sense (4.5), will still throw error.
     def get_items(self, *selectors, **kwargs):
         strict_index = kwargs.get('strict_index', self._strict_index)
+        sort = kwargs.get('sort', True)
         items = []
         if not selectors or selectors[0] is None:
             items = self._items_ordered.copy()
@@ -201,6 +202,7 @@ class Observer():
                 err = e.StrictIndexException(f"Selector {i}, {selector}.", kind=self._type, level=strict_index)
                 if err: raise err
         resulting_items_by_id = {}
+        if sort == False: return items
         for item in items:
             if id(item) not in resulting_items_by_id:
                 resulting_items_by_id[id(item)] = item
