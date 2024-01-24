@@ -330,8 +330,6 @@ class Observed(s.Selector):
     def _process(self, parent):
         if id(self) in parent._items_by_id:
             return [self]
-        if parent.has_item(s.Has_Children(self)):
-            return [self]
         return []
 
     def get_name(self):
