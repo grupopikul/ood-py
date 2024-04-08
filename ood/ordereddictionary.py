@@ -179,6 +179,10 @@ class Observer():
     # If selector makes no sense (4.5), will still throw error.
     def get_items(self, *selectors, **kwargs):
         strict_index = kwargs.get('strict_index', self._strict_index)
+        exclude = kwargs.pop('exclude', None)
+        excluded = []
+        if exclude:
+            excluded = self.get_items(*exclude)
         sort = kwargs.get('sort', True)
         items = []
         if not selectors or selectors[0] is None:
@@ -195,7 +199,7 @@ class Observer():
             elif isinstance(selector, s.Selector):
                 new_items = selector._process(self)
             else:
-                raise e.SelectorTypeError(f"Selectors must be: str, int, slice, {self._child_type} or Selectors. Not {type(selector)}")
+                raise e.SelectorTypeError(f"Selectors must be: str, int, slice, {self._child_type} or Selectors. Not {type(selector)}: {selector}")
             if new_items and len(new_items)>0:
                 items.extend(new_items)
             else:
@@ -204,7 +208,7 @@ class Observer():
         resulting_items_by_id = {}
         if sort == False: return items
         for item in items:
-            if id(item) not in resulting_items_by_id:
+            if id(item) not in resulting_items_by_id and item not in excluded:
                 resulting_items_by_id[id(item)] = item
         sorted_items = []
         for ref_item in self._items_ordered:
@@ -310,14 +314,14 @@ class Observer():
 
     def abandon(self):
         self.pop_all()
-        if hasattr(super(), "abandon"): super().abandon()
+        if hasattr(super(), "abandon"): super().abandon() # is this really necessary?
 
 class Observed(s.Selector):
     _type="item"
     def __init__(self, *args, **kwargs):
         self._name = kwargs.pop('name', "unnamed")
         if not isinstance(self._name, str):
-            raise TypeError("Name must be a string, please")
+            raise TypeError(f"Name must be a string, please, not {self._name}")
         self._multi_parent = kwargs.pop('multi_parent', None)
         self._parents_by_id = weakref.WeakValueDictionary({})
 
@@ -372,4 +376,4 @@ class Observed(s.Selector):
 
     def abandon(self):
         self._deregister_parent(*self._get_parents())
-        if hasattr(super(), "abandon"): super().abandon()
+        if hasattr(super(), "abandon"): super().abandon() # and is this really necessary?
