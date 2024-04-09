@@ -205,10 +205,16 @@ class Observer():
             else:
                 err = e.StrictIndexException(f"Selector {i}, {selector}.", kind=self._type, level=strict_index)
                 if err: raise err
+        for to_exclude in excluded:
+            while True:
+                try:
+                    items.remove(to_exclude)
+                except ValueError:
+                    break
         resulting_items_by_id = {}
         if sort == False: return items
         for item in items:
-            if id(item) not in resulting_items_by_id and item not in excluded:
+            if id(item) not in resulting_items_by_id:
                 resulting_items_by_id[id(item)] = item
         sorted_items = []
         for ref_item in self._items_ordered:
